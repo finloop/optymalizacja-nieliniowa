@@ -65,12 +65,14 @@ o nasępujących parametrach:
 - $m_o$ = 500 kg - masa rakiety (paliwo + masa ładunku)
 - $m_{final}$ = 100 kg - masa ładunku
 
-Dla uproszczenia przyjęto $Isp$ jest stałe, niezależne od czasu działania silnika oraz, że rakieta osiągnie maksimum wysokości gdy wysokość na której wyłączy silniki 
+Dla uproszczenia przyjęto $Isp$ jest stałe, niezależne od czasu działania silnika 
+oraz, że rakieta osiągnie maksimum wysokości gdy wysokość na której wyłączy silniki 
 będzie maksymalna dla zadanych parametrów rakiety.
 
 ![Tor lotu rakiety](Projekt_1_tor.png)
 
-Równanie^[https://web.mit.edu/16.unified/www/SPRING/propulsion/notes/node103.html], które opisuje na jakiej wysokości wyłączą się silniki wygląda następująco:
+Równanie^[https://web.mit.edu/16.unified/www/SPRING/propulsion/notes/node103.html], 
+które opisuje na jakiej wysokości wyłączą się silniki wygląda następująco:
 
 $$
 h(t) =  g \left[ -t \cdot Isp \cdot 
@@ -85,15 +87,17 @@ $$
 
 Podane równanie jest jedynie przybliżeniem, gdyż nie uwzględnia tarcia, efektów 
 pojawiających się przy przekroczeniu prędkości dźwięku itp. Dlatego do rozwiązania
-nie wykorzystam faktu iż jest to równanie paraboli, a rozwiążę je z pomocą algorytmów
-Fibonacciego oraz *NAZWA DRUGIEGO ALGORYTMU*
+nie wykorzystam faktu iż jest to równanie paraboli, a rozwiążę je z pomocą 
+algorytmów Fibonacciego oraz *NAZWA DRUGIEGO ALGORYTMU*
 
 ```{r}
+# Inicjalizacja parametrów
 Isp <- 150
 m_o <- 500
 m_final <- 100
 g <- 9.81
 
+# Deklacacja badanej funkcji
 h <- function(t) {
   g*(
     - t * Isp * log(m_o/m_final)/(m_o/m_final - 1)
@@ -103,18 +107,61 @@ h <- function(t) {
 }
 ```
 
-Dziedziną tej funkcji jest $x \in \left[0, \inf\right)$, ponieważ czas nie może być $< 0$. Wykres tej funkcji prezentuje się następująco:
+Dziedziną tej funkcji jest $x \in \left[0, \inf\right)$, ponieważ czas nie może 
+być $< 0$. Wykres tej funkcji prezentuje się następująco:
 
-```{r}
+```{r, fig.cap = 'Wykres funkcji h(t)'}
 plot(h, xlim = c(0, 200), ylim = c(0, 40000), xlab = "Time [s]", ylab = "Height [m]")
 ```
 
-Maximum znajduje się w przedziale $\left[0, 150\right]
+Maximum znajduje się w przedziale $\left[0, 150\right]$.
 
 ## Metoda Fibonacciego
 
-
+Metoda ta wymaga korzysta z liczb Fibonacciego, aby zoptymalizować algorytm 
+zostaną one obliczone metodą iteracyjną i przechowywane będą w tablicy.
 
 ```{r}
-plot(cars)
+# Stworzenie tablicy zawierającej ciąg Fibonacciego
+phi <- c(rep(0, 100))
+phi[1:3] <- c(1,1,1)
+for(i in c(3:length(phi))) {phi[i] = phi[i-1] + phi[i-2]}
+
+# Obliczanie K
+fib_k <-function(lower, upper, tol) {
+  i <- 1
+  l <- upper - lower
+  while(phi[i] < l / tol) {
+    i <- i + 1
+  }
+  return(i)
+}
+
+fibonacci_max <- function(f,lower, upper, tol){
+  k <- fib_k(lower, upper, tol) + 1
+  c <- upper - phi[k-1]/phi[k]*(upper - lower)
+  d <- lower + upper -c
+  i <- 0
+  cat("i: ", i, "a=", lower, "c=",c,"d=",d,"b=", upper , 
+      "beta=", phi[k-1-i]/phi[k-i],"\n",sep=" ")
+  while (i <= k-4) {
+    if (f(c) > f(d)) {
+      upper <- d
+      i <- i + 1
+    } else {
+      lower <- c
+      i <- i + 1
+    }
+    c <- upper - phi[k-1]/phi[k]*(upper - lower)
+    d <- lower + upper - c
+    cat("i: ", i, "a=", lower, "c=",c,"d=",d,"b=", upper , 
+        "beta=", phi[k-1-i]/phi[k-i],"\n",sep=" ")
+  }
+  return((lower + upper)/2)
+}
+
+```
+
+```{r}
+fibonacci_max(h, 0, 200, 1e-3)
 ```
