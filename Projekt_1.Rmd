@@ -1,0 +1,72 @@
+---
+title: |
+  | \LARGE Politechnika Rzeszowska im. Ignacego Łukasiewicza\par\vspace{0.3cm}\par Wydział Matematyki i Fizyki Stosowanej\par\vspace{0.2cm}\par
+  | \vspace{5cm} \LARGE Projekt Optymalizacja nieliniowa
+author: "Krawiec Piotr"
+date: "07/11/2021"
+output:
+  pdf_document:
+    number_sections: true
+    keep_tex: yes
+lang: pl
+abstract: |
+  Celem pracy jest przedstawienie zagadnień optymalizacji z wykorzystaniem metod
+  bezpośredniego przeszukiwania.
+---
+
+```{=tex}
+\vspace{8cm}
+{\raggedleft
+\vfill{
+  \large Piotr Krawiec L1 \vspace{0.2cm} \\
+  \large Semestr: 2021/2022 \vspace{0.2cm} \\
+  \large Kierunek: III/FS0-DI \vspace{0.2cm} \\
+  \large Numer indeksu: 164165 \vspace{0.2cm} \\
+}\par}
+\newpage
+\tableofcontents
+\newpage
+```
+
+```{r setup, include=FALSE, warning=FALSE}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines)==1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }                                                         
+  # paste these lines together                              
+  x <- paste(c(x, ""), collapse = "\n")                     
+  hook_output(x, options)                                   
+})                                                          
+knitr::opts_chunk$set(echo = TRUE)                          
+knitr::opts_chunk$set(cache = TRUE)                         
+Sys.setlocale("LC_ALL", "Polish")
+```
+
+
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
