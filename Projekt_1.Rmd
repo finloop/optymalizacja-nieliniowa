@@ -71,6 +71,7 @@ będzie maksymalna dla zadanych parametrów rakiety.
 ![Tor lotu rakiety](Projekt_1_tor.png)
 
 Równanie^[https://web.mit.edu/16.unified/www/SPRING/propulsion/notes/node103.html], które opisuje na jakiej wysokości wyłączą się silniki wygląda następująco:
+
 $$
 h(t) =  g \left[ -t \cdot Isp \cdot 
   \frac{
@@ -79,6 +80,40 @@ h(t) =  g \left[ -t \cdot Isp \cdot
   + t \cdot Isp - \frac{1}{2} \cdot t^{2}
   \right]
 $$
+
+# Rozwiązanie
+
+Podane równanie jest jedynie przybliżeniem, gdyż nie uwzględnia tarcia, efektów 
+pojawiających się przy przekroczeniu prędkości dźwięku itp. Dlatego do rozwiązania
+nie wykorzystam faktu iż jest to równanie paraboli, a rozwiążę je z pomocą algorytmów
+Fibonacciego oraz *NAZWA DRUGIEGO ALGORYTMU*
+
+```{r}
+Isp <- 150
+m_o <- 500
+m_final <- 100
+g <- 9.81
+
+h <- function(t) {
+  g*(
+    - t * Isp * log(m_o/m_final)/(m_o/m_final - 1)
+    + t * Isp
+    - 1/2 * t^2
+    )
+}
+```
+
+Dziedziną tej funkcji jest $x \in \left[0, \inf\right)$, ponieważ czas nie może być $< 0$. Wykres tej funkcji prezentuje się następująco:
+
+```{r}
+plot(h, xlim = c(0, 200), ylim = c(0, 40000), xlab = "Time [s]", ylab = "Height [m]")
+```
+
+Maximum znajduje się w przedziale $\left[0, 150\right]
+
+## Metoda Fibonacciego
+
+
 
 ```{r}
 plot(cars)
