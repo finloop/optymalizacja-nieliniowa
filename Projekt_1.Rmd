@@ -55,18 +55,31 @@ knitr::opts_chunk$set(cache = TRUE)
 Sys.setlocale("LC_ALL", "Polish")
 ```
 
+# Treść zadania
+Grupa studentów pracuje nad modelem rakiety na paliwo stałe. Ich zadaniem jest 
+wysłanie ładunku na jak największą wysokość, dostosowując tempo spalania paliwa 
+(czas pracy silnika). Studenci mają do dyskozycji rakietę
+o nasępujących parametrach:
 
+- $Isp$ = 150 - impuls właściwy silnika
+- $m_o$ = 500 kg - masa rakiety (paliwo + masa ładunku)
+- $m_{final}$ = 100 kg - masa ładunku
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+Dla uproszczenia przyjęto $Isp$ jest stałe, niezależne od czasu działania silnika oraz, że rakieta osiągnie maksimum wysokości gdy wysokość na której wyłączy silniki 
+będzie maksymalna dla zadanych parametrów rakiety.
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+![Tor lotu rakiety](Projekt_1_tor.png)
+
+Równanie^[https://web.mit.edu/16.unified/www/SPRING/propulsion/notes/node103.html], które opisuje na jakiej wysokości wyłączą się silniki wygląda następująco:
+$$
+h(t) =  g \left[ -t \cdot Isp \cdot 
+  \frac{
+    ln(\frac{m_o}{m_{final}})}
+    {\left(\frac{m_o}{m_{final}}  - 1\right)}
+  + t \cdot Isp - \frac{1}{2} \cdot t^{2}
+  \right]
+$$
 
 ```{r}
 plot(cars)
 ```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
