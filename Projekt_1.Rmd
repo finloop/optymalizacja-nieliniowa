@@ -1,32 +1,13 @@
 ---
-title: |
-  | \LARGE Politechnika Rzeszowska im. Ignacego Łukasiewicza\par\vspace{0.3cm}\par Wydział Matematyki i Fizyki Stosowanej\par\vspace{0.2cm}\par
-  | \vspace{5cm} \LARGE Projekt Optymalizacja nieliniowa
+title: "Projekt Optymalizacja nieliniowa"
+subtitle: "Cz 1 Optymalizacja jednowymiarowa"
 author: "Krawiec Piotr"
 date: "07/11/2021"
 output:
-  pdf_document:
-    number_sections: true
-    keep_tex: yes
+  beamer_presentation:
+    theme: "Antibes"
 lang: pl
-abstract: |
-  Celem pracy jest przedstawienie zagadnień optymalizacji z wykorzystaniem metod
-  bezpośredniego przeszukiwania.
 ---
-
-```{=tex}
-\vspace{8cm}
-{\raggedleft
-\vfill{
-  \large Piotr Krawiec L1 \vspace{0.2cm} \\
-  \large Semestr: 2021/2022 \vspace{0.2cm} \\
-  \large Kierunek: III/FS0-DI \vspace{0.2cm} \\
-  \large Numer indeksu: 164165 \vspace{0.2cm} \\
-}\par}
-\newpage
-\tableofcontents
-\newpage
-```
 
 ```{r setup, include=FALSE, warning=FALSE}
 library(knitr)
@@ -51,117 +32,93 @@ knit_hooks$set(output = function(x, options) {
   hook_output(x, options)                                   
 })                                                          
 knitr::opts_chunk$set(echo = TRUE)                          
-knitr::opts_chunk$set(cache = TRUE)                         
+knitr::opts_chunk$set(cache = TRUE) 
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 Sys.setlocale("LC_ALL", "Polish")
 ```
 
-# Treść zadania
-Grupa studentów pracuje nad modelem rakiety na paliwo stałe. Ich zadaniem jest 
-wysłanie ładunku na jak największą wysokość, dostosowując tempo spalania paliwa 
-(czas pracy silnika). Studenci mają do dyskozycji rakietę
-o nasępujących parametrach:
 
-- $Isp$ = 150 - impuls właściwy silnika
-- $m_o$ = 500 kg - masa rakiety (paliwo + masa ładunku)
-- $m_{final}$ = 100 kg - masa ładunku
+# Zadanie
 
-Dla uproszczenia przyjęto $Isp$ jest stałe, niezależne od czasu działania silnika 
-oraz, że rakieta osiągnie maksimum wysokości gdy wysokość na której wyłączy silniki 
-będzie maksymalna dla zadanych parametrów rakiety.
+Dystans Ziemia-Mars zależy od ich pozycji na orbitach i zmienia się w czasie. 
+Zadaniem jest obliczenie najmniejszego dystansu na jaki planety te zbliżą się.
+Dla ułatwienia orbity obu planet zostaną zamodelowane jako elipsy.
 
-![Tor lotu rakiety](Projekt_1_tor.png)
 
-Równanie^[https://web.mit.edu/16.unified/www/SPRING/propulsion/notes/node103.html], 
-które opisuje na jakiej wysokości wyłączą się silniki wygląda następująco:
+# Pozycja planety w dowolnym punkcie czasu
+
+Pozycje planet mogą być modelowane z pomocą liczb zespolonych^[https://www.johndcook.com/blog/2015/10/24/distance-to-mars/]. 
+Oto równanie  pozwalające na symulację ruchu planety. Zostanie ono odpowienio przeskalowane 
+poprzez dostosowanie parametru $r$. Model zakłada, że początkowy kąt między planetami
+wynosi 0 rad.
 
 $$
-h(t) =  g \left[ -t \cdot Isp \cdot 
-  \frac{
-    ln(\frac{m_o}{m_{final}})}
-    {\left(\frac{m_o}{m_{final}}  - 1\right)}
-  + t \cdot Isp - \frac{1}{2} \cdot t^{2}
-  \right]
+planet(t) = r * exp \left(2 \cdot \pi i r^{\frac{-3}{2}} t \right)
 $$
 
-# Rozwiązanie
+- $r$ - półoś wielka orbity planety (elipsy)
+- $AU$ - jednostka astronomiczna 149 597 870 700 m
+- $t$ - czas^[jednostka nie ma znaczenia, ponieważ szukamy najmniejszej odległości]
 
-Podane równanie jest jedynie przybliżeniem, gdyż nie uwzględnia tarcia, efektów 
-pojawiających się przy przekroczeniu prędkości dźwięku itp. Dlatego do rozwiązania
-nie wykorzystam faktu iż jest to równanie paraboli, a rozwiążę je z pomocą 
-algorytmów Fibonacciego oraz *NAZWA DRUGIEGO ALGORYTMU*
+# Elipsa
 
-```{r}
-# Inicjalizacja parametrów
-Isp <- 150
-m_o <- 500
-m_final <- 100
-g <- 9.81
+Oto model orbity. Dostosowując parametr $r$ (na rys $a$), możemy modelować 
+dowolną z planet.
 
-# Deklacacja badanej funkcji
-h <- function(t) {
-  g*(
-    - t * Isp * log(m_o/m_final)/(m_o/m_final - 1)
-    + t * Isp
-    - 1/2 * t^2
-    )
-}
-```
+- $a$ - półoś wielka elipsy
+- $b$ - półoś mała elipsy
 
-Dziedziną tej funkcji jest $x \in \left[0, \inf\right)$, ponieważ czas nie może 
-być $< 0$. Wykres tej funkcji prezentuje się następująco:
 
-```{r, fig.cap = 'Wykres funkcji h(t)'}
-plot(h, xlim = c(0, 200), ylim = c(0, 40000), xlab = "Time [s]", ylab = "Height [m]")
-```
+![](orbit.png){width=70%}
 
-Maximum znajduje się w przedziale $\left[0, 150\right]$.
+# Równanie dla ziemi i marsa
 
-## Metoda Fibonacciego
+Ponieważ półoś wielka orbity Ziemi wokół słońca to $1 AU$ przyjmiemy parametr $r = 1 AU$.
 
-Metoda ta wymaga korzysta z liczb Fibonacciego, aby zoptymalizować algorytm 
-zostaną one obliczone metodą iteracyjną i przechowywane będą w tablicy.
+$$
+earth(t) = exp \left(2 \cdot \pi \cdot i \cdot t \right)
+$$
+
+Ponieważ półoś wielka orbity Marsa wokół słońca to $1.524 AU$ przyjmiemy parametr $r = 1.524 AU$.
+
+$$
+mars(t) = 1.524 * exp \left(2 \cdot \pi \cdot i \cdot (1.524)^{\frac{-3}{2}} \cdot t \right)
+$$
+
+# Równanie dla ziemi i marsa - kod w R
 
 ```{r}
-# Stworzenie tablicy zawierającej ciąg Fibonacciego
-phi <- c(rep(0, 100))
-phi[1:3] <- c(1,1,1)
-for(i in c(3:length(phi))) {phi[i] = phi[i-1] + phi[i-2]}
+r = 1.524 # półoś wielka orbity Marsa w AU
 
-# Obliczanie K
-fib_k <-function(lower, upper, tol) {
-  i <- 1
-  l <- upper - lower
-  while(phi[i] < l / tol) {
-    i <- i + 1
-  }
-  return(i)
-}
+earth <- function(t){ exp(2*pi*1i*t) }
 
-fibonacci_max <- function(f,lower, upper, tol){
-  k <- fib_k(lower, upper, tol) + 1
-  c <- upper - phi[k-1]/phi[k]*(upper - lower)
-  d <- lower + upper -c
-  i <- 0
-  cat("i: ", i, "a=", lower, "c=",c,"d=",d,"b=", upper , 
-      "beta=", phi[k-1-i]/phi[k-i],"\n",sep=" ")
-  while (i <= k-4) {
-    if (f(c) > f(d)) {
-      upper <- d
-      i <- i + 1
-    } else {
-      lower <- c
-      i <- i + 1
-    }
-    c <- upper - phi[k-1]/phi[k]*(upper - lower)
-    d <- lower + upper - c
-    cat("i: ", i, "a=", lower, "c=",c,"d=",d,"b=", upper , 
-        "beta=", phi[k-1-i]/phi[k-i],"\n",sep=" ")
-  }
-  return((lower + upper)/2)
-}
-
+mars <- function(t) { r*exp(2*pi*1i*(r**-1.5*t)) }
 ```
+
+Odległość między planetami można wyznaczyć jako wartość bezwzględą z różnicy 
+w ich pozycjach w czasie $t$.
+
+$$
+f(t) = abs \left( mars(t) - earth(t) \right)
+$$
 
 ```{r}
-fibonacci_max(h, 0, 200, 1e-3)
+f <- function(x) { abs(mars(x) - earth(x)) }
 ```
+
+# Wykres funkcji odległości planet
+
+```{r, fig.cap = 'Wykres funkcji distance(t)', echo=FALSE, out.width = '80%'}
+plot(f, xlim = c(0, 5), ylim = c(0, 3), xlab = "Time", ylab = "Distance [AU]")
+```
+
+# Wykres funkcji odległości planet - porównanie z sin
+
+Przeskalowana funkcja $sin(x)$ na czerwono. Funkcja dystansu przypomina funkcję 
+sinus, ale jak widać na wykresie poniżej nie są identyczne.
+
+```{r, fig.cap = 'Wykres funkcji distance(t)', echo=FALSE, out.width = '60%'}
+plot(f, xlim = c(0, 5), ylim = c(0, 3), xlab = "Time", ylab = "Distance [AU]")
+plot(function(x) sin(2.85*x - 1.4) + 1.5, xlim = c(0, 5), ylim = c(0, 3), xlab = "Time", ylab = "Distance [AU]", add=TRUE, col="red")
+```
+# Rozwiązanie 
