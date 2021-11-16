@@ -6,6 +6,7 @@ date: "07/11/2021"
 output:
   beamer_presentation:
     theme: "Antibes"
+    keep_tex: true
 lang: pl
 ---
 
@@ -121,4 +122,77 @@ sinus, ale jak widać na wykresie poniżej nie są identyczne.
 plot(f, xlim = c(0, 5), ylim = c(0, 3), xlab = "Time", ylab = "Distance [AU]")
 plot(function(x) sin(2.85*x - 1.4) + 1.5, xlim = c(0, 5), ylim = c(0, 3), xlab = "Time", ylab = "Distance [AU]", add=TRUE, col="red")
 ```
-# Rozwiązanie 
+# Metody bezgradientowe 
+
+Zadanie zostanie roziwązane korzystając z metody Fibonacciego. Do jej implementacji
+będzie potrzebny *Ciąg Fibonacciego*, który zdefiniowany jest jako:
+$$
+F(0) = 0, F(1) = 1, F_n = F_{n-1} + F_{n-2}
+$$
+
+# Obliczenie Ciągu Fibonacciego
+\small
+```{r}
+# Obliczenie pierwszych 101 wyrazów ciągu fib
+phil <- c(rep(0, 100))
+phil[1:3] <- c(1,1,1)
+for(i in c(3:length(phil))) {phil[i] = phil[i-1]
+  + phil[i-2]}
+
+phi <- function(i) {
+  if(i == 0) {return(0)}; # F(0) = 0
+  # Obliczenie nowych elementów jeżeli wyjdziemy poza zakres
+  if (i > length(phil)) { 
+    len <- length(phil)
+    phil <- c(phil, rep(0, i - len))
+    for(j in c(len:length(phil))) {phil[j] = phil[j-1] 
+      + phil[j-2]}
+  }
+  return(phil[i])
+}
+```
+\normalsize
+
+# Metoda Fibonacciego
+Metoda ta opiera się na metodzie zawężania początkowego przedziału poszukiwania.
+Zaczynamy od wybrania przedziału $[a, b]$. Nastepnie w każdej iteracji obliczamy
+punkty $c^{(i)}$ oraz $d^{(i)}$, tak aby spełniały:
+$$
+b^{(i)} - d^{(i)} = c^{(i)} - a^{(i)}
+$$
+oznacza to, że są równo oddalone od aktualnego przedziału przeszukiwań.
+
+# Metoda Fibonacciego
+
+Wyznaczanie punktów $c^{(i)}$ oraz $d^{(i)}$. 
+$$
+c^{(i)} = b^{(i)} - \alpha^{(i)} \cdot \left( b^{(i)} - a^{(i)} \right)
+$$
+
+$$
+d^{(i)} = a^{(i)} + b^{(i)} - c^{(i)}
+$$
+
+$$
+\alpha^{(i)} = \frac{\phi_{k-i-1}}{\phi_{k-i}}
+$$
+
+$$
+\phi_k = min \{ F(k): F(k) > \frac{L}{\epsilon} \}
+$$
+Gdzie: $F(k)$ to k-ty wyraz *Ciągu Fibonacciego*, $L$ = | a - b |, $\epsilon$ - zadana dokładność
+
+# Jak działa zawężanie przedziału poszukiwań
+- Gdy: $f(c) < f(d)$, wtedy $a^{(i+1)} = a^{(i)}, b^{(i+1)} = d^{(i)}$
+- Gdy: $f(d) < f(c)$, wtedy $a^{(i+1)} = c^{(i)}, b^{(i+1)} = d^{(i)}$
+
+```{r, echo=FALSE, out.width = '80%'}
+fun <- function(x){x^2}
+plot(fun, -2, 2)
+xp <- c(-1,-0.5, 1,1.5)
+yp <- fun(xp)
+points(xp, yp, pch=19)
+text(xp+0.1,yp+0.1, c("a","c","d", "b"))
+```
+
+
