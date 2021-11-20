@@ -136,11 +136,11 @@ $$
 # Obliczenie pierwszych 101 wyrazów ciągu fib
 phil <- c(rep(0, 100))
 phil[1:3] <- c(1,1,1)
-for(i in c(3:length(phil))) {phil[i] = phil[i-1]
-  + phil[i-2]}
+for(i in c(3:length(phil))) {
+  phil[i] = phil[i-1] + phil[i-2]}
 
 phi <- function(i) {
-  if(i == 0) {return(0)}; # F(0) = 0
+  if(i <= 0) {return(0)}; # F(0) = 0
   # Obliczenie nowych elementów jeżeli wyjdziemy poza zakres
   if (i > length(phil)) { 
     len <- length(phil)
@@ -162,6 +162,20 @@ b^{(i)} - d^{(i)} = c^{(i)} - a^{(i)}
 $$
 oznacza to, że są równo oddalone od aktualnego przedziału przeszukiwań.
 
+
+# Jak działa zawężanie przedziału poszukiwań
+- Gdy: $f(c) < f(d)$, wtedy $a^{(i+1)} = a^{(i)}, b^{(i+1)} = d^{(i)}$
+- Gdy: $f(d) < f(c)$, wtedy $a^{(i+1)} = c^{(i)}, b^{(i+1)} = b^{(i)}$
+
+```{r, echo=FALSE, out.width = '80%'}
+fun <- function(x){x^2}
+plot(fun, -2, 2)
+xp <- c(-1,-0.5, 1,1.5)
+yp <- fun(xp)
+points(xp, yp, pch=19)
+text(xp+0.1,yp+0.1, c("a","c","d", "b"))
+```
+
 # Metoda Fibonacciego
 
 Wyznaczanie punktów $c^{(i)}$ oraz $d^{(i)}$. 
@@ -182,17 +196,40 @@ $$
 $$
 Gdzie: $F(k)$ to k-ty wyraz *Ciągu Fibonacciego*, $L$ = | a - b |, $\epsilon$ - zadana dokładność
 
-# Jak działa zawężanie przedziału poszukiwań
-- Gdy: $f(c) < f(d)$, wtedy $a^{(i+1)} = a^{(i)}, b^{(i+1)} = d^{(i)}$
-- Gdy: $f(d) < f(c)$, wtedy $a^{(i+1)} = c^{(i)}, b^{(i+1)} = d^{(i)}$
+# Obliczenie ilości iteracji
+Z kryterium obliczającego $phi_k$ wiemy, że należy wykonać k-2 iteracji.
+Gdyż pierwsze wartości w ciągu fibonacciego są 1 i 0, więc wartość parametru 
+$alpha$ wyniesie 1 i 0 (dla iteracji $k-1$ i $k$), a więc nie dokona się już 
+Ponadto ze względu na błędy zaokrągleń, zwiększam liczbę iteracji o 1.
 
-```{r, echo=FALSE, out.width = '80%'}
-fun <- function(x){x^2}
-plot(fun, -2, 2)
-xp <- c(-1,-0.5, 1,1.5)
-yp <- fun(xp)
-points(xp, yp, pch=19)
-text(xp+0.1,yp+0.1, c("a","c","d", "b"))
+```{r}
+phi_k <- function(a, b, tol) {
+  i <- 1
+  L <- b - a
+  while(phi(i) < L / tol) {i <- i+1}
+  return(i + 1)
+}
 ```
 
+# Metoda Fibonacciego implementacja
+
+```{r}
+fib <- function(f, a, b, tol) {
+  k <- phi_k(a, b, tol)
+  for(i in c(0:(k-1))) {
+      alpha <- phi(k-i-1)/phi(k-i)
+      c <- b - alpha*(b - a)
+      d <- a + b - c
+      cat("iteracja=", i+1, "a=", a, "c=",c,"d=",d,"b=", b , "alpha=", alpha,"\n",sep=" ")
+      if( f(c) < f(d) ) {
+        b <- d
+      } else {
+        a <- c
+      }
+  }
+  return((a+b)/2)
+}
+```
+
+% 
 
