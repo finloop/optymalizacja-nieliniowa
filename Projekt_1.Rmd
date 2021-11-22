@@ -347,4 +347,24 @@ fib_anim(f, 1.5, 2.5, 1e-3, 4)
 \centering
 ![](img/15.png)
 
+# Rozwiązanie 
+
+\tiny
+```{r}
+fib(f, 1.5, 2.5, 1e-3)
+```
+\normalsize
+
+# Rozwiązanie - wykres
+
+```{r, echo=FALSE, results='hide'}
+x_min <- fib(f, 1.5, 2.5, 1e-3)
+y_min <- f(x_min)
+plot(f, xlim=c(1.5, 2.5))
+points(x_min, y_min)
+```
+
+
+
+
 
