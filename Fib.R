@@ -30,9 +30,17 @@ fib_k <-function(lower, upper, tol) {
   return(i)
 }
 
+phi <- function(i) {
+  if (i <= 1) {
+    return(i)
+  } else {
+    return(phi(i-1) + phi(i-2))
+  }
+}
+
 fibonacci <- function(f,lower, upper, tol){
   k <- fib_k(lower, upper, tol) + 1
-  c <- upper - phi(k-1)/phi(k)*(upper - lower)
+  c <- upper - phi(k-1-i)/phi(k-i)*(upper - lower)
   d <- lower + upper -c
   i <- 0
   cat("iteracja=", i, "a=", lower, "c=",c,"d=",d,"b=", upper , "beta=", phi(k-1-i)/phi(k-i),"\n",sep=" ")
@@ -44,7 +52,7 @@ fibonacci <- function(f,lower, upper, tol){
       lower <- c
       i <- i + 1
     }
-    c <- upper - phi(k-1)/phi(k)*(upper - lower)
+    c <- upper - phi(k-1-i)/phi(k-i)*(upper - lower)
     d <- lower + upper - c
     cat("iteracja=", i, "a=", lower, "c=",c,"d=",d,"b=", upper , "beta=", phi(k-1-i)/phi(k-i),"\n",sep=" ")
   }

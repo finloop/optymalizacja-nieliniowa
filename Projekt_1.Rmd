@@ -3,6 +3,7 @@ title: "Projekt Optymalizacja nieliniowa"
 subtitle: "Cz 1 Optymalizacja jednowymiarowa"
 author: "Krawiec Piotr"
 date: "07/11/2021"
+header-includes: \usepackage{animate}
 output:
   beamer_presentation:
     theme: "Antibes"
@@ -220,7 +221,8 @@ fib <- function(f, a, b, tol) {
       alpha <- phi(k-i-1)/phi(k-i)
       c <- b - alpha*(b - a)
       d <- a + b - c
-      cat("iteracja=", i+1, "a=", a, "c=",c,"d=",d,"b=", b , "alpha=", alpha,"\n",sep=" ")
+      cat("iteracja=", i+1, "a=", a, "c=",c,"d=",d,"b=", 
+          b , "alpha=", alpha,"\n",sep=" ")
       if( f(c) < f(d) ) {
         b <- d
       } else {
@@ -231,5 +233,118 @@ fib <- function(f, a, b, tol) {
 }
 ```
 
-% 
+# Wizualizacja 
+\tiny
+```{r animacja, cache=TRUE}
+fib_anim <- function(f, a, b, tol, max_iter) {
+  k <- phi_k(a, b, tol)
+  lower <- a
+  upper <- b
+  for(i in c(0: min((k-1), max_iter))) {
+      alpha <- phi(k-i-1)/phi(k-i)
+      # FITST PLOT 
+      plot(f, xlim=c(lower, upper))
+      points(xp <- c(a,b), yp <- f(xp))
+      text(xp+0.02, yp+0.02, c("a", "b"))
+      dev.print(png, paste("img/", 3*i + 1, ".png", sep=""), width = 400, height = 400)
+      c <- b - alpha*(b - a)
+      d <- a + b - c
+      # SECOND PLOT 
+      plot(f, xlim=c(lower, upper))
+      points(xp <- c(a,b,c, d), yp <- f(xp))
+      text(xp+0.02, yp+0.02, c("a", "b", "c", "d"))
+      dev.print(png, paste("img/", 3*i + 2, ".png", sep=""), width = 400, height = 400)
+      # THIRD PLOT 
+      plot(f, xlim=c(lower, upper))
+      points(xp <- c(a,b,c, d), yp <- f(xp))
+      text(xp+0.02, yp+0.02, c("a", "b", "c", "d"))
+      if( f(c) < f(d) ) {
+        arrows(b, f(b), d, f(d), col="red")
+        b <- d
+      } else {
+        arrows(a, f(a), c, f(c), col="red")
+        a <- c
+      }
+      dev.print(png, paste("img/", 3*i + 3, ".png", sep=""), width = 400, height = 400) }
+  return((a+b)/2)
+}
+fib_anim(f, 1.5, 2.5, 1e-3, 4)
+```
+\normalsize
+
+# Wizualizacja - animacja
+
+\centering
+![](img/1.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/2.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/3.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/4.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/5.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/6.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/7.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/8.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/9.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/10.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/11.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/12.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/13.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/14.png)
+
+# Wizualizacja - animacja
+
+\centering
+![](img/15.png)
+
 
