@@ -217,7 +217,7 @@ phi_k <- function(a, b, tol) {
 ```{r}
 fib <- function(f, a, b, tol) {
   k <- phi_k(a, b, tol)
-  for(i in c(0:(k-1))) {
+  for(i in c(0:(k-3))) {
       alpha <- phi(k-i-1)/phi(k-i)
       c <- b - alpha*(b - a)
       d <- a + b - c
@@ -240,7 +240,7 @@ fib_anim <- function(f, a, b, tol, max_iter) {
   k <- phi_k(a, b, tol)
   lower <- a
   upper <- b
-  for(i in c(0: min((k-1), max_iter))) {
+  for(i in c(0: min((k-3), max_iter))) {
       alpha <- phi(k-i-1)/phi(k-i)
       # FITST PLOT 
       plot(f, xlim=c(lower, upper))
@@ -364,7 +364,66 @@ plot(f, xlim=c(1.5, 2.5))
 points(x_min, y_min)
 ```
 
+# Metoda bisekcji
 
+Metoda ta do znalezienia minimum/maximum wykorzystuje **alborytm bisekcji**. 
+Algorytm bisekcji znajduje miejsce zerowe dowolnej ciągłej funkcji. Wykorzystuje
+on fakt, że funkcja zmienia znak po przejściu przez miejsce zerowe. Mając dane punkty
+początkowe $[a, b]$ oraz $f(a)$ i $f(b)$. W każdej iteracji
+**algorytmu bisekcji** wybieramy punkt $c = \frac{a+b}{2}$, oraz obliczamy $f_c=f(c)$.
+Następnie wybieramy ten z przedziałów $[a, m]$, $[m, b]$, dla których iloczyn $f(a)*f(m)$ 
+lub $f(b)*f(m)$ jest *ujemny* (co oznacza, że minimum jest w wybranym przedziale).
+Możemy wykorzystać ten fakt, aby znajdować minima/maxima funkcji tj. będziemy 
+poszukiwać miejsc zerowych pochodnej.
 
+# Poszukiwanie pochodnej funkcji
 
+Ponieważ funkcja ta działa na liczbach zespolonych i oblicza *abs*, R nie
+pozwala na analityczne obliczenie jej pochodnej. Należy więc to zrobić numerycznie:
 
+```{r}
+library(numDeriv)
+df <- function(x) {grad(f, x)}
+```
+
+# Wykres pochodnej funkcji
+
+```{r, echo=FALSE}
+plot(df, xlim=c(1.5,2.5), axes=FALSE)
+axis(1, pos=0)
+axis(2, pos=0) 
+grid()
+```
+# Metoda bisekcji
+
+```{r}
+bisect <- function(df, a, b, tol) {
+  iter <- ceiling(log2((b-a)/tol))
+  for(i in c(1:iter)) {
+    m <- (a+b)/2
+    df.m <- df(m)
+    cat("iteracja=", i, "a=", a, "b=",b, "m=",m,"\n",sep=" ")
+    if(df.m * df(a) < 0) {
+      b <- m
+    } else {
+      a <- m
+    }
+  }
+  (a+b)/2
+}
+```
+
+# Rozwiązanie - metoda bisecji
+
+```{r}
+xr <- bisect(df, 0.5, 1.5, 1e-3)
+c(xr, f(xr))
+```
+
+# Rozwiązanie - metoda bisekcji - wykres
+
+```{r, echo=False, results='hide'}
+xr <- bisect(df, 1.5, 2.5, 1e-3)
+plot(f, xlim=c(1.5, 2.5))
+points(xr, f(xr))
+```
