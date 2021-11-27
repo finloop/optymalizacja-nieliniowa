@@ -402,7 +402,8 @@ bisect <- function(df, a, b, tol) {
   for(i in c(1:iter)) {
     m <- (a+b)/2
     df.m <- df(m)
-    cat("iteracja=", i, "a=", a, "b=",b, "m=",m,"\n",sep=" ")
+    cat("iteracja=", i, "a=", a, "b=",b, 
+        "m=",m,"\n",sep=" ")
     if(df.m * df(a) < 0) {
       b <- m
     } else {
@@ -413,7 +414,7 @@ bisect <- function(df, a, b, tol) {
 }
 ```
 
-# Rozwiązanie - metoda bisecji
+# Rozwiązanie - metoda bisekcji
 
 ```{r}
 xr <- bisect(df, 0.5, 1.5, 1e-3)
@@ -422,7 +423,7 @@ c(xr, f(xr))
 
 # Rozwiązanie - metoda bisekcji - wykres
 
-```{r, echo=False, results='hide'}
+```{r, echo=FALSE, results='hide'}
 xr <- bisect(df, 1.5, 2.5, 1e-3)
 plot(f, xlim=c(1.5, 2.5))
 points(xr, f(xr))
