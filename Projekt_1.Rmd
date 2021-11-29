@@ -200,7 +200,8 @@ Gdzie: $F(k)$ to k-ty wyraz *Ciągu Fibonacciego*, $L$ = | a - b |, $\epsilon$ -
 # Obliczenie ilości iteracji
 Z kryterium obliczającego $phi_k$ wiemy, że należy wykonać k-2 iteracji.
 Gdyż pierwsze wartości w ciągu fibonacciego są 1 i 0, więc wartość parametru 
-$alpha$ wyniesie 1 i 0 (dla iteracji $k-1$ i $k$), a więc nie dokona się już 
+$alpha$ wyniesie 1 i 0 (dla iteracji $k-1$ i $k$), a więc nie dokona się już
+zawężenie przedziału.
 Ponadto ze względu na błędy zaokrągleń, zwiększam liczbę iteracji o 1.
 
 ```{r}
@@ -233,7 +234,34 @@ fib <- function(f, a, b, tol) {
 }
 ```
 
+# Rozwiązanie - metoda Fibonacciego
+
+\tiny
+```{r}
+fib(f, 1.5, 2.5, 1e-3)
+```
+\normalsize
+
+# Rozwiązanie - wykres
+
+```{r, echo=FALSE, results='hide'}
+x_min <- fib(f, 1.5, 2.5, 1e-3)
+y_min <- f(x_min)
+plot(f, xlim=c(1.5, 2.5))
+points(x_min, y_min)
+```
+
 # Wizualizacja 
+
+Aby pokazać jak dokładnie działa algorytm, na następnych slajdach umieściłem
+wizualizację. Krok po korku prześledzić można kolejne kroki algorytmu oraz 
+to w jaki sposób wybiera punkt zawężający przedział. Ze względu na to iż
+ilość iteracji algorytmu może wynosić powyżej 6, gdzie przy takim zawężeniu
+zmiana wartości nie będzie widoczna na wykresie (przy *xlim=c(a, b)*), wprowadziłem
+parametr *max_iter*. Wszystkie wyresy zostały wygenerowane z pomocą kodu na następnym
+slajdzie.
+
+# Wizualizacja - Fibonacci - kod
 \tiny
 ```{r animacja, cache=TRUE}
 fib_anim <- function(f, a, b, tol, max_iter) {
@@ -242,7 +270,7 @@ fib_anim <- function(f, a, b, tol, max_iter) {
   upper <- b
   for(i in c(0: min((k-3), max_iter))) {
       alpha <- phi(k-i-1)/phi(k-i)
-      # FITST PLOT 
+      # FIRST PLOT 
       plot(f, xlim=c(lower, upper))
       points(xp <- c(a,b), yp <- f(xp))
       text(xp+0.02, yp+0.02, c("a", "b"))
@@ -272,97 +300,82 @@ fib_anim(f, 1.5, 2.5, 1e-3, 4)
 ```
 \normalsize
 
-# Wizualizacja - animacja
+
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/1.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/2.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/3.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/4.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/5.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/6.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/7.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/8.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/9.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/10.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/11.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/12.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/13.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/14.png)
 
-# Wizualizacja - animacja
+# Wizualizacja - Fibonacci - animacja
 
 \centering
 ![](img/15.png)
 
-# Rozwiązanie 
-
-\tiny
-```{r}
-fib(f, 1.5, 2.5, 1e-3)
-```
-\normalsize
-
-# Rozwiązanie - wykres
-
-```{r, echo=FALSE, results='hide'}
-x_min <- fib(f, 1.5, 2.5, 1e-3)
-y_min <- f(x_min)
-plot(f, xlim=c(1.5, 2.5))
-points(x_min, y_min)
-```
 
 # Metoda bisekcji
 
@@ -403,7 +416,7 @@ bisect <- function(df, a, b, tol) {
     m <- (a+b)/2
     df.m <- df(m)
     cat("iteracja=", i, "a=", a, "b=",b, 
-        "m=",m,"\n",sep=" ")
+        "m=",m, "znak=", sign(df.m * df(a)),"\n",sep=" ")
     if(df.m * df(a) < 0) {
       b <- m
     } else {
@@ -417,7 +430,7 @@ bisect <- function(df, a, b, tol) {
 # Rozwiązanie - metoda bisekcji
 
 ```{r}
-xr <- bisect(df, 0.5, 1.5, 1e-3)
+xr <- bisect(df, 1.5, 2.4, 1e-3)
 c(xr, f(xr))
 ```
 
@@ -428,3 +441,121 @@ xr <- bisect(df, 1.5, 2.5, 1e-3)
 plot(f, xlim=c(1.5, 2.5))
 points(xr, f(xr))
 ```
+# Metoda bisekcji - wizualizacja
+\tiny
+```{r}
+bisect_plot <- function(f, df, a, b, tol) {
+  iter <- ceiling(log2((b-a)/tol)); lower <- a; upper <- b;
+  # FITST PLOT 
+  plot(f, xlim=c(lower, upper))
+  points(xp <- c(a,b), yp <- f(xp))
+  text(xp+0.02, yp+0.02, c("a", "b"))
+  dev.print(png, paste("img/bi/", 0, ".png", sep=""), width = 400, height = 400)
+  
+  for(i in c(1:iter)) {
+    m <- (a+b)/2
+    df.m <- df(m)
+    # SECOND PLOT 
+    plot(df, xlim=c(lower, upper))
+    points(xp <- c(a,b, m), yp <- df(xp))
+    text(xp+0.02, yp+0.02, c("a", "b", "m"))
+    axis(1, pos=0);axis(2, pos=0); grid(); # Ostylowanie
+    dev.print(png, paste("img/bi/", 2*(i-1) + 1, ".png", sep=""), width = 400, height = 400)
+    # THIRD PLOT 
+    plot(df, xlim=c(lower, upper))
+    points(xp <- c(a,b, m), yp <- df(xp))
+    text(xp+0.02, yp+0.02, c("a", "b", "m"))
+    axis(1, pos=0);axis(2, pos=0); grid(); # Ostylowanie
+    if(df.m * df(a) < 0) {
+      arrows(b, df(b), m, df(m), col="red")
+      b <- m
+    } else {
+      arrows(a, df(a), m, df(m), col="red")
+      a <- m
+    }
+    dev.print(png, paste("img/bi/", 2*(i-1) + 2, ".png", sep=""), width = 400, height = 400)
+  }
+  (a+b)/2
+}
+bisect_plot(f, df, 1.5, 2.5, 1e-3);
+```
+\normalsize
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/0.png)
+
+# Wizualizacja - bisekcja - animacja 
+W celu lepszej wizualizacji, przejdziemy na pochodną:
+\centering 
+![](img/bi/1.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/2.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/3.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/4.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/5.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/6.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/7.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/8.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/9.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/10.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/11.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/12.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/13.png)
+
+# Wizualizacja - bisekcja - animacja 
+\centering 
+![](img/bi/14.png)
+
+# Podsumowanie
+
+Oba algorytmy znalazły minimum w zadanym przedziale z zadaną dokładnością. 
+Ich porównanie znajduje się poniżej:
+
+| Algorytm | X      | f(X)     | Iteracje |
+|----------|--------|----------|------------|
+| Fibonacci | 2.134868 | 0.5240011 | 16 |
+| Bisection | 2.13501  | 0.5240023 | 10 |
+
+Metoda Fibonacciego osiągnęła lepszą dokładność, ale kosztem wykonania większej
+ilości iteracji. Jednak mimo tego, Algorytm Fibonacciego będzie w przypadku tej funkcji lepszy, 
+gdyż nie musimy obliczać jej pochodnej. 
+
+W przypadku algorytmu Bisekcji można by go przyspieszyć, obliczając wsześniej pochodną
+metodą analityczną. Jednak jest to niemożliwe w przypadku tej funkcji gdyż wykorzystuje
+ona funkcję **abs**.
