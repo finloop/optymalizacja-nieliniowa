@@ -38,13 +38,20 @@ knitr::opts_chunk$set(cache = TRUE)
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 Sys.setlocale("LC_ALL", "Polish")
 ```
+# Wstęp
 
+Celem pracy jest zaprezenowanie działania dwóch algorytmów optymalizacji -
+Metody Fibonacciego oraz Metody Bisekcji (gradientowa). Praca dostępna jest
+w dwóch wersjach - PDF oraz Rmarkdown.
 
-# Zadanie
+Rmarkdown to wersja interaktywna, uruchamiana w RStudio, pozwalająca na zweryfikowanie
+poprawności działania prezentowanych algorytmów.
+
+# Problem
 
 Dystans Ziemia-Mars zależy od ich pozycji na orbitach i zmienia się w czasie. 
 Zadaniem jest obliczenie najmniejszego dystansu na jaki planety te zbliżą się.
-Dla ułatwienia orbity obu planet zostaną zamodelowane jako elipsy.
+Dla ułatwienia orbity obu planet zostaną zamodelowane z pomocą elips i liczb zespolonych.
 
 
 # Pozycja planety w dowolnym punkcie czasu
@@ -209,11 +216,11 @@ phi_k <- function(a, b, tol) {
   i <- 1
   L <- b - a
   while(phi(i) < L / tol) {i <- i+1}
-  return(i + 1)
+  return(i + 1) # Dodaję jedną iterację
 }
 ```
 
-# Metoda Fibonacciego implementacja
+# Metoda Fibonacciego implementacja - kod w R
 
 ```{r}
 fib <- function(f, a, b, tol) {
@@ -234,7 +241,7 @@ fib <- function(f, a, b, tol) {
 }
 ```
 
-# Rozwiązanie - metoda Fibonacciego
+# Rozwiązanie - metoda Fibonacciego - wynik
 
 \tiny
 ```{r}
@@ -383,15 +390,16 @@ Metoda ta do znalezienia minimum/maximum wykorzystuje **alborytm bisekcji**.
 Algorytm bisekcji znajduje miejsce zerowe dowolnej ciągłej funkcji. Wykorzystuje
 on fakt, że funkcja zmienia znak po przejściu przez miejsce zerowe. Mając dane punkty
 początkowe $[a, b]$ oraz $f(a)$ i $f(b)$. W każdej iteracji
-**algorytmu bisekcji** wybieramy punkt $c = \frac{a+b}{2}$, oraz obliczamy $f_c=f(c)$.
+**algorytmu bisekcji** wybieramy punkt $c = \frac{a+b}{2}$, oraz obliczamy $f_m=f(m)$.
 Następnie wybieramy ten z przedziałów $[a, m]$, $[m, b]$, dla których iloczyn $f(a)*f(m)$ 
-lub $f(b)*f(m)$ jest *ujemny* (co oznacza, że minimum jest w wybranym przedziale).
-Możemy wykorzystać ten fakt, aby znajdować minima/maxima funkcji tj. będziemy 
-poszukiwać miejsc zerowych pochodnej.
+lub $f(b)*f(m)$ jest *ujemny* (co oznacza, że miejsce zerowe jest w wybranym przedziale).
+Możemy wykorzystać ten fakt, aby znajdować minima/maxima funkcji, gdyż maximum/minimum
+funkcji może znajdować się w miejscu gdzie pochodna wynosi 0. Wymaga to jednak 
+obliczenia pochodnej.
 
 # Poszukiwanie pochodnej funkcji
 
-Ponieważ funkcja ta działa na liczbach zespolonych i oblicza *abs*, R nie
+Ponieważ funkcja ta oblicza *abs*, R nie
 pozwala na analityczne obliczenie jej pochodnej. Należy więc to zrobić numerycznie:
 
 ```{r}
@@ -407,7 +415,7 @@ axis(1, pos=0)
 axis(2, pos=0) 
 grid()
 ```
-# Metoda bisekcji
+# Metoda bisekcji - kod w R
 
 ```{r}
 bisect <- function(df, a, b, tol) {
@@ -441,12 +449,21 @@ xr <- bisect(df, 1.5, 2.5, 1e-3)
 plot(f, xlim=c(1.5, 2.5))
 points(xr, f(xr))
 ```
+
+# Metoda bisekcji - wizualizacja
+
+Podobnie jak dla poprzedniego algorymu dokonałem wizualizacji tego jak działa.
+W każdym kroku algorytmu pokazane mamy jak poszukiwane jest miejsce zerowe
+pochodnej. Algorytm sprawdza, w którym z przedziałów iloczyn wartości na krawędziach
+będzie ujemny. Poniższy kod automatycznie generuje wszystkie wykresy i umieszcza
+je w folderze odpowiednio nazywając.
+
 # Metoda bisekcji - wizualizacja
 \tiny
 ```{r}
 bisect_plot <- function(f, df, a, b, tol) {
   iter <- ceiling(log2((b-a)/tol)); lower <- a; upper <- b;
-  # FITST PLOT 
+  # FIRST PLOT 
   plot(f, xlim=c(lower, upper))
   points(xp <- c(a,b), yp <- f(xp))
   text(xp+0.02, yp+0.02, c("a", "b"))
@@ -481,64 +498,64 @@ bisect_plot(f, df, 1.5, 2.5, 1e-3);
 ```
 \normalsize
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 1
 \centering 
 ![](img/bi/0.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 1
 W celu lepszej wizualizacji, przejdziemy na pochodną:
 \centering 
 ![](img/bi/1.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 1
 \centering 
 ![](img/bi/2.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 2
 \centering 
 ![](img/bi/3.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 2
 \centering 
 ![](img/bi/4.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 3
 \centering 
 ![](img/bi/5.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 3
 \centering 
 ![](img/bi/6.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 4
 \centering 
 ![](img/bi/7.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 4
 \centering 
 ![](img/bi/8.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 5
 \centering 
 ![](img/bi/9.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 5
 \centering 
 ![](img/bi/10.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 6
 \centering 
 ![](img/bi/11.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 6
 \centering 
 ![](img/bi/12.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 7
 \centering 
 ![](img/bi/13.png)
 
-# Wizualizacja - bisekcja - animacja 
+# Wizualizacja - bisekcja - animacja - iteracja 7
 \centering 
 ![](img/bi/14.png)
 
