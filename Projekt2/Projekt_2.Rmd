@@ -1,17 +1,21 @@
 ---
 title: "Projekt Optymalizacja nieliniowa"
-subtitle: "Cz 2 Optymalizacja wielowymiarowa"
-author: | 
+author: |
   | Krawiec Piotr
   | Inżynieria i analiza danych, 3 Rok
 date: "01/12/2021"
-description: "Inżynieria i analiza danych, 3 Rok"
-header-includes: \usepackage{animate}
 output:
+  slidy_presentation: 
+    theme: united
+    highlight: tango
   beamer_presentation:
-    theme: "Antibes"
-    keep_tex: true
+    theme: Antibes
+    keep_tex: yes
+description: Inżynieria i analiza danych, 3 Rok
+header-includes: \usepackage{animate}
+subtitle: Cz 2 Optymalizacja wielowymiarowa
 lang: pl
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
@@ -43,35 +47,77 @@ Sys.setlocale("LC_ALL", "Polish")
 ```
 # Wstęp
 
+Celem tej pracy jest omówienie metody gradientów sprzężonych Polaka-Ribiere'a,
+jej implementacja w R oraz rozwiązanie z jej pomoca zadania optymalizacyjnego.
+
 # Problem
 
+Istnieje wiele algorytmów optymalizacji co zrodziło potrzebę porównania ich, wyłonienia, który jest najlepszy. Do tego celu powstały funkcje testujące algorytmy optymalizacji ^[https://en.wikipedia.org/wiki/Test_functions_for_optimization] . Ich pierwszy zbiór został stworzony jako pakiet w programie Matlab przez Rody Oldenhuis i zawierał 50 funkcji testowych.
+
+![Funkcja Rastrigina](img/Rastrigin_function.png){ width=50% }
+
+# Inne przykłady: Funkcja Rosenbrock'a oraz Goldstein'a-Price'a
+
+
+![Funkcja Rosenbrock'a](img/Rosenbrock's_function.jpg){ width=45% } ![Funkcja Goldstein'a-Price'a ](img/Goldstein_Price_function.pdf.jpg){ width=45% }
+
+# Zadanie
+
+Zadaniem będzie znalezienie minimum funkcji Goldstein'a-Price'a o następującym równaniu:
+
+$$
+f(x,y)=\left[1+\left(x+y+1\right)^{2}\left(19-14x+3x^{2}-14y+6xy+3y^{2}\right)\right]
+$$
+
 ```{r}
-a = 1
-b = 100
 
 f <- function(x, y) {
-  (a - x)^2 + b*(y - x^2)^2  
+  (1 + (x + y + 1)^2 * 
+  (19 - 14 + 3*x^2 - 14*y + 6*x*y + 3*y^2)) *
+  (30 + (2*x - 3*y)^2*(18 - 32*x + 12*x^2 
+      + 48*y-36*x*y + 27*y^2))
 }
 ```
 
-```{r}
-x <- seq(-2, 2, length.out=200)
-y <- seq(-1.4, 5, length.out=200)
+
+# Wykres funkcji
+
+```{r, echo=FALSE}
+x <- seq(-1.5, 1.5, length.out=200)
+y <- seq(-1.5, 1.5, length.out=200)
 z <- outer(x, y, f)
-contour(x, y, z, nlevels=20)
+contour(x, y, z, levels=seq(0, 100, 2)^2)
 ```
 
-```{r}
-x <- seq(-3, 3, length.out=200)
-y <- seq(-1, 3, length.out=200)
+# Wykres funkcji - zbliżenie na miejsce zerowe
+
+```{r, echo=FALSE}
+x <- seq(-1, 1, length.out=200)
+y <- seq(-1.4, 0, length.out=200)
 z <- outer(x, y, f)
-contour(x, y, z, nlevels=20)
+contour(x, y, z, levels=seq(0, 100, 2)^2)
 ```
 
+
 ```{r}
-for (i in 1:300){
- persp(x,y,z, theta=i,phi=1,expand=0.4,col = "lightblue",xlab = "X",
+x <- seq(-0.5, 0.5, length.out=50)
+y <- seq(-1.4, 0, length.out=50)
+z <- outer(x, y, f)
+
+for (i in seq(1, 90, 10)){
+ persp(x,y,z, theta=i,phi=30,expand=0.4,col = "lightblue",xlab = "X",
  ylab = "Y", zlab = "Z",ticktype = "detailed")
- Sys.sleep(0.04)
 }
+```
+
+# Plotly
+```{r echo=FALSE, fig.height=8, fig.width=12, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(plotly)
+x <- seq(-1.2, 0.5, length.out=50)
+y <- seq(-1, 0, length.out=50)
+z <- outer(x, y, f)
+
+fig <- plot_ly()
+fig <- fig %>% add_surface(z = z, x = x, y  = y, colorscale = "Rainbow")
+fig
 ```
