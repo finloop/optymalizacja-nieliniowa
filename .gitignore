@@ -1,5 +1,8 @@
-Projekt_1_cache/*
-Projekt_1_files/*
+*/Projekt_1_cache/*
+*/Projekt_1_files/*
+*/Projekt_2_cache/*
+*/Projekt_2_files/*
+Projekt2/index_files/*
 *.html
 *.tex
 .Rhistory
