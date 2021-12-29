@@ -66,7 +66,9 @@ Istnieje wiele algorytmów optymalizacji co zrodziło potrzebę porównania ich,
 Zadaniem będzie znalezienie minimum funkcji Goldstein'a-Price'a o następującym równaniu:
 
 $$
-f(x,y)=\left[1+\left(x+y+1\right)^{2}\left(19-14x+3x^{2}-14y+6xy+3y^{2}\right)\right]
+f(x,y)=\left[1+\left(x+y+1\right)^{2}\left(19-14x+3x^{2}-14y+6xy+3y^{2}\right)\right]$$
+$$
+\left[30 + (2x - 3y)^2 (18 - 32x + 12x^2 + 48y - 36 xy + 27y^2) \right]
 $$
 
 ```{r}
@@ -158,53 +160,111 @@ fig <- fig %>% add_surface(z = z, x = x, y  = y, colorscale = "Rainbow")
 fig
 ```
 
+# Metoda gradientów sprzężonych Polaka-Ribiere'a
+
+Jest to iteracyjna metoda optymalizacji bez ograniczeń. Odróżnia się od innych
+metod gradientowych tym, iż do oblizenia kolejnego kierunku poszukiwań korzysta
+z gradientu z poprzedniej iteracji (stąd sprzężenie w nazwie). Ogólna zasada jest
+podobna do metod gradientowych, w kroku pierwszym poszukujemy gradientu, który 
+wskaże nam kierunek poszukiwania najmniejszego punktu:
+$$ d(0) = - \nabla f(x^{(0)}) $$
+
+Następnie w każdym z kolejnych $d^{(i+1)}$, uwzględniać będziemy $\beta$, które 
+zawiera gradient.
+$$ d^{(i+1)} = - \nabla f(x^{(i+1)}) + \beta^{(i+1)} d^{(i)} $$
+Gdzie:
+$$ \beta^{i+1} =  \frac{\nabla f(x^{(i+1)})^T \left( \nabla f(x^{(i+1)}) - \nabla f(x^{(i)}) \right) }{\nabla f(x^{(i)})^T \nabla f(x^{(i)})} $$
+
+# Metoda gradientów sprzężonych Polaka-Ribiere'a
+
+I ostatecznie, kolejne przybliżenie szukanego minimum można znaleźć:
+$$ x^{(i+1)} =x^{(i)} + h^{(i)}*d^{(i)}$$
+Przy czym, h - długość kroku można wyznaczyć na kilka sposobów. Najbardziej
+optymalnym jest aktualizacja tej wartości w każdej iteracji. Można to robić poszukując
+minium funkcji wzdłóż kierunku poszukiwań $d$.
+$$ g(\alpha) = f(x^{(i)} + \alpha d^{(i)})$$
+Wtedy, dla dla znalezionego $g_{min}$ i $\alpha_{min}$:
+$$ h^{(i)} =  \alpha_{min}$$
+Minium funkcji $g$ poszukuje się z pomocą metod optymalizacji jednowymiarowej.
+
+
+# Metody optymalizacji jednowymiarowej - mały (wielki) problem
+
+I tutaj pojawia się mały problem, metody optymalizacji jednowymiarowej wymagają
+podania przedziału, w którym może znajdować się minimum. Może zdarzyć się tak, że
+dla dużych $d$, źle dobrany przedział poszukiwań $[a, b]$ sprawi, że krok $h^{(i)}$
+będzie bardzo duży i nie trafimy w minimum. Co może się zdarzyć dla bardzo 
+"płaskich" funkcji. 
+
+Dokładnie na taki problem natrafiłem podczas pracy. Funkcja w okolicach minimum
+posiadała bardzo duży gradient i w następnej iteracji $x$ znacząco oddalał się od 
+minimum.
+
+Algorytm był zbieżny wyłącznie dla minimum, oddalenie się o $0.01$ powodowało rozbieżność.
+
+# Próba rozwiązania problemu
+
+Pierwszą rzeczą, której spróbowała najoczywistsza rzecz tj. ograniczenie gradientu.
+W przypadku gdy stawał się zbyt duży, dzieliłem go przez jego długość. Sprawdziło
+się to wyłącznie w początkowych iteracjach, ponieważ gdyż w przypadku gdy krok $h^{(i)}$
+otrzymany przez metodę optymalizacji jednowymiarowej był zbyt duży, nadal 
+oddalałem się od minimum.
+
+# Rozwiązanie problemu
+
+Zmiana gradientu okazała się nietrafionym pomysłem, ponieważ przy okazji zmieniał
+się parametr $\beta$. Zamiast tego zmieniłem przedział poszukiwań optymalnego kroku,
+ponieważ to on ostatecznie był dodawany do $x$. Idelnym przedziałem okazał się
+$$ [a, b] = \left[ max \left\{\frac{-1}{|d|}, -|d| \right\} , min \left\{\frac{1}{|d|}, |d| \right\} \right] $$
+W przypadku bardzo dużych $d$, przedział poszukiwań był bardzo zawężany, co 
+sprawiało, że krok także się zmiejszał.
+
+Próbowałem także zmienić algorytm optymailzacji jednowymiarowej i dla podanej funkcji
+jedynym, który zadziałał był algorytm golden. Z algorytmem Fibonacciego już w drugiej
+iteracji (dla tych samych parametrów) $x$ stawał się duży, a algorytm nie był zbieżny.
+
+# Algorytm golden
 
 ```{r}
 golden <- function(f, lower, upper, tol) {
-ratio <- 2 / (3 + sqrt(5))
-x1 <- (1 - ratio) * lower + ratio * upper
-f.x1 <- f(x1)
-while (abs(upper - lower) > 2 * tol) {
-x2 <- (1 - ratio) * x1 + ratio * upper
-f.x2 <- f(x2)
-if (f.x1 < f.x2) {
-upper <- lower
-lower <- x2
-} else {
-lower <- x1
-x1 <- x2
-f.x1 <- f.x2
-}
-}
-return((upper + lower) / 2)
-}
-
-lgrad <- function(f, x, grad.max) {
-  grad.x <- grad(f, x);
-  grad.x.magnitude <- sqrt(sum(grad.x^2));
-  if(grad.x.magnitude > grad.max) {
-    grad.x <- grad.x / grad.x.magnitude;
+  ratio <- 2 / (3 + sqrt(5))
+  x1 <- (1 - ratio) * lower + ratio * upper
+  f.x1 <- f(x1)
+  while (abs(upper - lower) > 2 * tol) {
+    x2 <- (1 - ratio) * x1 + ratio * upper
+    f.x2 <- f(x2)
+    if (f.x1 < f.x2) {
+      upper <- lower
+      lower <- x2
+    } else {
+      lower <- x1
+      x1 <- x2
+      f.x1 <- f.x2
+    }
   }
-  return(grad.x)
+return((upper + lower) / 2)
 }
 ```
 
+# Metoda gradientów sprzężonych Polaka-Ribiere'a - kod w R
+
+\tiny
 ```{r}
 library(numDeriv)
-polak.ribiere <- function(f, x, tol, grad.max) {
-  beta <- 1;
-  # Ograniczenie gradientu
+polak.ribiere <- function(f, x, tol) {
+  beta <- 1; i <- 1;
   d <- -grad(f, x,)
-  cat(d, "\n");
   repeat {
     g <- function(a) {f(x + a * d)}
     d.magnitude <- sqrt(sum(d^2));
     grad.x <- grad(f, x)
-    cat(grad.x, "\n");
-    step <- golden(g,-1/d.magnitude ,1/d.magnitude ,tol)
+    step <- golden(g,
+                max(c(-1/d.magnitude,-d.magnitude)), 
+                min(c(1/d.magnitude,d.magnitude)), tol)
     new.x <- x + step * d
     grad.new.x <- grad(f, new.x)
-    cat("x=", x,"step=",step, "new.x=", new.x, "grad.x=", grad.x, "d=", d, "\n");
+    cat("(",i,")", "x=", x,"step=",step, "new.x=", new.x, "grad.x=", 
+        grad.x, "\n(",i,")", "grad.new.x=", grad.new.x, "d=", d, "\n");
     if (dist(rbind(new.x,x)) < tol) {
       return(new.x)
     }
@@ -212,31 +272,118 @@ polak.ribiere <- function(f, x, tol, grad.max) {
               (grad.new.x - grad.x) /
               (t(grad.x) %*% grad.x)
     d <- -grad(f,new.x) + as.vector(beta) * d;
-    x <- new.x
+    x <- new.x; i <- i + 1;
   }
 }
 
-fn <- function(x) f(x[1], x[2]);
 ```
+\normalsize
 
+# Rozwiązanie zadania
+
+\tiny
 ```{r}
-m <- polak.ribiere(fn, c(-0.5, -1.0), 1e-3, 0.5)
-m
-fn(m)
+fn <- function(x) f(x[1], x[2]);
+m <- polak.ribiere(fn, c(-0.5, -0.5), 1e-3)
+
+```
+\normalsize
+
+# Rozwiązanie zadania - sprawdzenie
+
+Wynik ten pokrywa się z rozwiązaniem podawanym przez WolframAlpha
+
+![Wynik podany przez Wolframa](img/minimum.png)
+
+# Rozwiązanie - wizualizacja
+
+```{r eval=FALSE, include=FALSE}
+con <- function() {
+x <- seq(-1, 1, length.out=200)
+y <- seq(-1.4, 0, length.out=200)
+z <- outer(x, y, f)
+contour(x, y, z, levels=seq(0, 100, 2)^2)}
+
 ```
 
 
+```{r eval=FALSE, include=FALSE}
+library(numDeriv)
+polak.ribiere.anim <- function(f, x, tol) {
+  beta <- 1; i <- 1;
+  d <- -grad(f, x,)
+  start.x <- x;
+  repeat {
+    g <- function(a) {f(x + a * d)}
+    d.magnitude <- sqrt(sum(d^2));
+    grad.x <- grad(f, x)
+    step <- golden(g,
+                max(c(-1/d.magnitude,-d.magnitude)), 
+                min(c(1/d.magnitude,d.magnitude)), tol)
+    new.x <- x + step * d
+    grad.new.x <- grad(f, new.x)
+    cat("(",i,")", "x=", x,"step=",step, "new.x=", new.x, "grad.x=", 
+        grad.x, "\n(",i,")", "grad.new.x=", grad.new.x, "d=", d, "\n");
+    if (dist(rbind(new.x,x)) < tol) {
+      return(new.x)
+    }
+    beta <- t(grad.new.x) %*%
+              (grad.new.x - grad.x) /
+              (t(grad.x) %*% grad.x)
+    d <- -grad(f,new.x) + as.vector(beta) * d;
+    con()
+    arrows(x[1], x[2], new.x[1], new.x[2], col="red")
+    points(start.x[1], start.x[2], col="green", pch=16)
+    dev.print(png, paste("img/Z", i, ".png", sep=""), width = 1200, height = 800)
+    x <- new.x; i <- i + 1;
+  }
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+con()
+fn <- function(x) f(x[1], x[2]);
+m <- polak.ribiere.anim(fn, c(-0.5, -0.5), 1e-3)
+```
 
 
+![](img/Z1.png)
 
+# Rozwiązanie - wizualizacja
 
+![](img/Z2.png)
 
+# Rozwiązanie - wizualizacja
 
+![](img/Z3.png)
 
+# Rozwiązanie - wizualizacja
 
+![](img/Z3.png)
 
+# Rozwiązanie - wizualizacja
 
+![](img/Z4.png)
 
+# Rozwiązanie - wizualizacja
+
+![](img/Z5.png)
+
+# Rozwiązanie - wizualizacja
+
+![](img/Z6.png)
+
+# Rozwiązanie - wizualizacja
+
+![](img/Z7.png)
+
+# Rozwiązanie - wizualizacja
+
+![](img/Z8.png)
+
+# Rozwiązanie - wizualizacja
+
+![](img/Z9.png)
 
 
 
