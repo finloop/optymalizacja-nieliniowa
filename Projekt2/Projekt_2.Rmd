@@ -5,12 +5,12 @@ author: |
   | Inżynieria i analiza danych, 3 Rok
 date: "29/12/2021"
 output:
-  slidy_presentation: 
-    theme: united
-    highlight: tango
   beamer_presentation:
     theme: Antibes
     keep_tex: yes
+  slidy_presentation: 
+    theme: united
+    highlight: tango
 description: Inżynieria i analiza danych, 3 Rok
 header-includes: \usepackage{animate}
 subtitle: Cz 2 Optymalizacja wielowymiarowa
@@ -156,9 +156,8 @@ for (i in seq(1, 90, 10)){
 
 ![](img/81.jpeg)
 
-# Wykres w plotly
 
-```{r fig.height=8, fig.width=12}
+```{r eval=FALSE, fig.height=8, fig.width=12, include=FALSE}
 library(plotly)
 x <- seq(-1.2, 0.5, length.out=50)
 y <- seq(-1, 0, length.out=50)
@@ -419,5 +418,6 @@ w lokalne jednak niemal natychmiast wraca w okolicę globalnego.
 Prezentacja została wykonana w Rmarkdown i wyeksportowana z pomocą beamer.
 
 Załączniki do pliku pdf:
+
 - Plik Rmd - do reprodukcji wyników
 - Plik html - ta sama prezentacja, ale z dodatkowym interaktywnym wykresem w plotly
