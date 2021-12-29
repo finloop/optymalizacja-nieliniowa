@@ -3,14 +3,14 @@ title: "Projekt Optymalizacja nieliniowa"
 author: |
   | Krawiec Piotr
   | Inżynieria i analiza danych, 3 Rok
-date: "01/12/2021"
+date: "29/12/2021"
 output:
-  beamer_presentation:
-    theme: Antibes
-    keep_tex: yes
   slidy_presentation: 
     theme: united
     highlight: tango
+  beamer_presentation:
+    theme: Antibes
+    keep_tex: yes
 description: Inżynieria i analiza danych, 3 Rok
 header-includes: \usepackage{animate}
 subtitle: Cz 2 Optymalizacja wielowymiarowa
@@ -52,7 +52,7 @@ jej implementacja w R oraz rozwiązanie z jej pomoca zadania optymalizacyjnego.
 
 # Problem
 
-Istnieje wiele algorytmów optymalizacji co zrodziło potrzebę porównania ich, wyłonienia, który jest najlepszy. Do tego celu powstały funkcje testujące algorytmy optymalizacji ^[https://en.wikipedia.org/wiki/Test_functions_for_optimization] . Ich pierwszy zbiór został stworzony jako pakiet w programie Matlab przez Rody Oldenhuis i zawierał 50 funkcji testowych.
+Istnieje wiele algorytmów optymalizacji co zrodziło potrzebę porównania ich i wyłonienia, który jest najlepszy. Do tego celu powstały funkcje testujące algorytmy optymalizacji ^[https://en.wikipedia.org/wiki/Test_functions_for_optimization] . Ich pierwszy zbiór został stworzony jako pakiet w programie Matlab przez Rody Oldenhuis i zawierał 50 funkcji testowych.
 
 ![Funkcja Rastrigina](img/Rastrigin_function.png){ width=50% }
 
@@ -80,6 +80,14 @@ f <- function(x, y) {
       + 48*y-36*x*y + 27*y^2))
 }
 ```
+
+# Wykresy funkcji - wstęp
+
+Na następnych slajdach umieściłem dwa typy wykresów. 
+
+Pierwszy z nich to konturowy, patrzymy na funkcję z góry i oznaczone mamy kolejne jej poziomy. Uwaga: te poziomy nie są równo oddalone, są to kolejne drugie potęgi cyfr od 0 do 100. Z tego wykresu możemy odczytać, że minimum jest gdzieś w okolucy punktu $(0, -1)$.
+
+Drugim typem wykresu jest wykres 3d, ukazany jest on z kilku perspektyw.
 
 
 # Wykres funkcji
@@ -148,8 +156,9 @@ for (i in seq(1, 90, 10)){
 
 ![](img/81.jpeg)
 
+# Wykres w plotly
 
-```{r eval=FALSE, fig.height=8, fig.width=12, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+```{r fig.height=8, fig.width=12}
 library(plotly)
 x <- seq(-1.2, 0.5, length.out=50)
 y <- seq(-1, 0, length.out=50)
@@ -297,6 +306,14 @@ Wynik ten pokrywa się z rozwiązaniem podawanym przez WolframAlpha
 
 # Rozwiązanie - wizualizacja
 
+Na kolejnych slajdach zwizualizowałem pracę algorytmu. Na każdym z nich znajduje się
+wykres konturowy funkcji, a także strzałka reprezentująca krok, który wykonał 
+algorytm w danej iteracji.
+
+Zielony punkt wskazuje miejsce, z którego algorym rozpoczynał pracę.
+
+# Rozwiązanie - wizualizacja
+
 ```{r eval=FALSE, include=FALSE}
 con <- function() {
 x <- seq(-1, 1, length.out=200)
@@ -386,6 +403,21 @@ m <- polak.ribiere.anim(fn, c(-0.5, -0.5), 1e-3)
 ![](img/Z9.png)
 
 
+# Podsumowanie
 
+Omówiona funkcja nie jest trywialna dla tego algorytmu. W wersja omówiona na wykładzie
+nie znajdowała minimum, nawet gdy byliśmy bardzo blisko. Przedstawione modyfikacje algorytmu
+poprawiły jego działanie na tej funkcji, jednak nie wiadomo czy to rozwiązanie poprawiło
+by jakość działania algorytmu, gdyby użyto innej funkcji.
+ 
+Niemniej jak wynika z poprzedniej animacji, nawet wprowadzona zmiana nie jest idealna,
+algorytm w pierwszym wypadku nie zbiega do minimum globalnego, ale na moment wchodzi
+w lokalne jednak niemal natychmiast wraca w okolicę globalnego.
 
+# Załączniki i informacje dodatkowe
 
+Prezentacja została wykonana w Rmarkdown i wyeksportowana z pomocą beamer.
+
+Załączniki do pliku pdf:
+- Plik Rmd - do reprodukcji wyników
+- Plik html - ta sama prezentacja, ale z dodatkowym interaktywnym wykresem w plotly
